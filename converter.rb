@@ -145,6 +145,9 @@ builder = Nokogiri::XML::Builder.new do |xml|
       				uri.path.gsub!(/#{v}/, "${#{v}}")
       			end
 		      		xml.HTTPSamplerProxy("guiclass"=>"HttpTestSampleGui", "testclass"=>"HTTPSamplerProxy", "testname"=>"#{request['url']}", "enabled"=>"true"){
+		      			if(request['body'] && request['body']['raw'])
+		      				xml.boolProp(true, "name"=>"HTTPSampler.postBodyRaw")
+		      			end
 		      			xml.elementProp("name"=>"HTTPsampler.Arguments", "elementType"=>"Arguments", "guiclass"=>"HTTPArgumentsPanel", "testclass"=>"Arguments", "enabled"=>"true"){
 		      				if(!request['body'].empty?)
 			      				xml.collectionProp("name"=>"Arguments.arguments"){
@@ -160,16 +163,11 @@ builder = Nokogiri::XML::Builder.new do |xml|
 				      					end
 				      				end
 				      				if(request['body']['raw'])
-				      					body = JSON.parse(request['body']['raw'])
-				      					body.keys.each do |key|
-					      						xml.elementProp("name"=>"#{key}", "elementType"=>"HTTPArgument"){
-					      						xml.boolProp(false, "name"=>"HTTPArgument.always_encode")
-					      						xml.stringProp(key, "name"=>"Argument.name")
-					      						xml.stringProp(body[key], "name"=>"Argument.value")
-					      						xml.stringProp("=", "name"=>"Argument.metadata")
-					      						xml.boolProp(true, "name"=>"HTTPArgument.use_equals")
-				      						}
-				      					end
+				      					xml.elementProp("name"=>"", "elementType"=>"HTTPArgument"){
+				      						xml.boolProp(false, "name"=>"HTTPArgument.always_encode")
+				      						xml.stringProp(request['body']['raw'], "name"=>"Argument.value")
+				      						xml.stringProp("=", "name"=>"Argument.metadata")
+				      					}
 				      				end
 
 			      				}
