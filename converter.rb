@@ -148,15 +148,30 @@ builder = Nokogiri::XML::Builder.new do |xml|
 		      			xml.elementProp("name"=>"HTTPsampler.Arguments", "elementType"=>"Arguments", "guiclass"=>"HTTPArgumentsPanel", "testclass"=>"Arguments", "enabled"=>"true"){
 		      				if(!request['body'].empty?)
 			      				xml.collectionProp("name"=>"Arguments.arguments"){
-			      					request['body']['formdata'].each do |formelement|
-				      						xml.elementProp("name"=>"#{formelement['key']}", "elementType"=>"HTTPArgument"){
-				      						xml.boolProp(false, "name"=>"HTTPArgument.always_encode")
-				      						xml.stringProp(formelement['key'], "name"=>"Argument.name")
-				      						xml.stringProp(formelement['value'], "name"=>"Argument.value")
-				      						xml.stringProp("=", "name"=>"Argument.metadata")
-				      						xml.boolProp(true, "name"=>"HTTPArgument.use_equals")
-			      						}
-			      					end
+			      					if(request['body']['formdata'])
+				      					request['body']['formdata'].each do |formelement|
+					      						xml.elementProp("name"=>"#{formelement['key']}", "elementType"=>"HTTPArgument"){
+					      						xml.boolProp(false, "name"=>"HTTPArgument.always_encode")
+					      						xml.stringProp(formelement['key'], "name"=>"Argument.name")
+					      						xml.stringProp(formelement['value'], "name"=>"Argument.value")
+					      						xml.stringProp("=", "name"=>"Argument.metadata")
+					      						xml.boolProp(true, "name"=>"HTTPArgument.use_equals")
+				      						}
+				      					end
+				      				end
+				      				if(request['body']['raw'])
+				      					body = JSON.parse(request['body']['raw'])
+				      					body.keys.each do |key|
+					      						xml.elementProp("name"=>"#{key}", "elementType"=>"HTTPArgument"){
+					      						xml.boolProp(false, "name"=>"HTTPArgument.always_encode")
+					      						xml.stringProp(key, "name"=>"Argument.name")
+					      						xml.stringProp(body[key], "name"=>"Argument.value")
+					      						xml.stringProp("=", "name"=>"Argument.metadata")
+					      						xml.boolProp(true, "name"=>"HTTPArgument.use_equals")
+				      						}
+				      					end
+				      				end
+
 			      				}
 			      			end
 			      		}	
